@@ -326,7 +326,6 @@ watch(searchQuery, () => {
 </script>
 
 <style scoped>
-/* Estilos específicos para el backend */
 .backend-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

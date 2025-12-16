@@ -2,12 +2,16 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const admin = require('firebase-admin');
-const serviceAccount = require('../firebase-admin-key.json');
 
-// Inicializar Firebase Admin (sin storageBucket porque no lo usaremos)
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+  projectId: 'pruebadyd-ca28e',
+  storageBucket: 'pruebadyd-ca28e.appspot.com'
 });
+
+//  Conectar al Storage Emulator
+if (process.env.FIREBASE_STORAGE_EMULATOR_HOST) {
+  console.log(' Usando Firebase Storage Emulator');
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -46,8 +50,8 @@ app.use((err, req, res, next) => {
 
 // Iniciar servidor
 app.listen(PORT, () => {
-  console.log(`🚀 Backend ejecutándose en: http://localhost:${PORT}`);
-  console.log(`📁 Rutas disponibles:`);
+  console.log(` Backend ejecutándose en: http://localhost:${PORT}`);
+  console.log(` Rutas disponibles:`);
   console.log(`   GET  /api/health`);
   console.log(`   POST /api/files/upload`);
   console.log(`   GET  /api/files/list`);

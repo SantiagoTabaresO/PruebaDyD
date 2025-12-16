@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:3000/api';
+//const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -14,27 +16,22 @@ const api = axios.create({
 api.interceptors.response.use(
   response => response.data,
   error => {
+    console.error(' Backend error full:', error.response?.data);
+
     if (error.response) {
-      // Error del servidor
-      const serverError = error.response.data?.error || {};
       throw {
-        code: serverError.code || 'UNKNOWN_ERROR',
-        message: serverError.message || 'Error del servidor',
+        code: error.response.data?.error?.code || 'SERVER_ERROR',
+        message: error.response.data?.error?.message 
+          || error.response.data?.message 
+          || JSON.stringify(error.response.data),
         status: error.response.status
       };
-    } else if (error.request) {
-      // Error de red
-      throw {
-        code: 'NETWORK_ERROR',
-        message: 'Error de conexión con el servidor'
-      };
-    } else {
-      // Error de configuración
-      throw {
-        code: 'REQUEST_ERROR',
-        message: error.message
-      };
     }
+
+    throw {
+      code: 'NETWORK_ERROR',
+      message: 'No se pudo conectar con el servidor'
+    };
   }
 );
 
@@ -66,8 +63,15 @@ export const fileAPI = {
   
   // Solicitar descarga
   requestDownload: (fileId, downloadKey) => {
-    return api.post('/files/download', { fileId, downloadKey });
+    return axios.post(
+      `${API_BASE_URL}/files/download`,
+      { fileId, downloadKey },
+      {
+        responseType: 'blob' // 🔑 CLAVE ABSOLUTA
+      }
+    );
   },
+
   
   // Obtener estadísticas
   getStats: () => {

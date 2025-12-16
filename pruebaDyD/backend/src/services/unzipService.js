@@ -1,11 +1,10 @@
-const fs = require('fs');
-const path = require('path');
 const AdmZip = require('adm-zip');
+const path = require('path');
 
 class UnzipService {
   validateZip(zipPath) {
-    if (!fs.existsSync(zipPath)) {
-      throw new Error('El archivo ZIP no existe');
+    if (!zipPath) {
+      throw new Error('ZIP inválido');
     }
   }
 
@@ -13,57 +12,54 @@ class UnzipService {
     const zip = new AdmZip(zipPath);
     const entries = zip.getEntries();
 
-    const parentZip = originalName;
     const files = [];
     const skippedFiles = [];
     let totalSize = 0;
 
-    const MAX_SIZE = 10 * 1024 * 1024; // 10 MB por archivo
+    const MAX_SIZE = 50 * 1024 * 1024; // 50MB
 
     for (const entry of entries) {
       if (entry.isDirectory) continue;
 
-      const fileName = entry.entryName;
       const buffer = entry.getData();
-      const size = buffer.length;
+      if (!buffer || !buffer.length) continue;
 
-      if (size > MAX_SIZE) {
-        console.warn(`Archivo demasiado grande, omitiendo: ${fileName}`);
-        skippedFiles.push(fileName);
+      if (buffer.length > MAX_SIZE) {
+        skippedFiles.push(entry.entryName);
         continue;
       }
 
-      const mimeType = this.getMimeType(fileName);
+      const fileName = path.basename(entry.entryName);
 
       files.push({
         name: fileName,
         originalName: fileName,
-        size,
-        mimeType
+        buffer,
+        size: buffer.length,
+        mimeType: this.getMimeType(fileName)
       });
 
-      totalSize += size;
+      totalSize += buffer.length;
     }
 
     return {
-      parentZip,
+      parentZip: originalName,
+      files,
       totalFiles: files.length,
       totalSize,
-      files,
-      skippedFiles // 🔑 nuevo campo
+      skippedFiles
     };
   }
 
   getMimeType(fileName) {
     const ext = path.extname(fileName).toLowerCase();
-    const map = {
+    return {
       '.pdf': 'application/pdf',
       '.json': 'application/json',
-      '.txt': 'text/plain',
+      '.png': 'image/png',
       '.jpg': 'image/jpeg',
-      '.png': 'image/png'
-    };
-    return map[ext] || 'application/octet-stream';
+      '.txt': 'text/plain'
+    }[ext] || 'application/octet-stream';
   }
 }
 

@@ -7,54 +7,83 @@ const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
 
 /**
- * Subir y procesar ZIP
+ * SUBIR ZIP
  */
 router.post('/upload', upload.single('zipFile'), async (req, res) => {
   try {
     const zipPath = req.file.path;
-    const originalName = req.file.originalname;
+    const zipName = req.file.originalname;
 
     unzipService.validateZip(zipPath);
-    const extractionResult = await unzipService.processZip(zipPath, originalName);
+    const result = await unzipService.processZip(zipPath, zipName);
 
     const savedFiles = [];
-    for (const file of extractionResult.files) {
-      const metadata = {
+
+    for (const file of result.files) {
+      const storagePath = `zips/${result.parentZip}/${file.name}`;
+
+      await firebaseService.uploadFile(
+        file.buffer,
+        storagePath,
+        file.mimeType
+      );
+
+      const saved = await firebaseService.saveFileMetadata({
         name: file.name,
         originalName: file.originalName,
         size: file.size,
-        mimeType: file.mimeType
-      };
-      const saved = await firebaseService.saveFileMetadata(metadata, extractionResult.parentZip);
+        mimeType: file.mimeType,
+        path: storagePath
+      }, result.parentZip);
+
       savedFiles.push(saved);
     }
 
     res.json({
       success: true,
       data: {
-        zipName: extractionResult.parentZip,
-        totalFiles: extractionResult.totalFiles,
-        totalSize: extractionResult.totalSize,
+        zipName: result.parentZip,
+        uploadedFiles: savedFiles.length,
+        totalFiles: result.totalFiles,
+        totalSize: result.totalSize,
         files: savedFiles,
-        skippedFiles: extractionResult.skippedFiles // 🔑 nuevo
+        skippedFiles: result.skippedFiles
       }
     });
-  } catch (error) {
-    console.error('Error procesando ZIP:', error);
-    res.status(500).json({ error: { message: error.message } });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: { message: err.message } });
   }
 });
 
 /**
- * Listar archivos
+ * LISTAR
  */
 router.get('/list', async (req, res) => {
-  try {
-    const files = await firebaseService.listFiles();
-    res.json({ success: true, data: { files } });
-  } catch (error) {
-    res.status(500).json({ error: { message: error.message } });
+  const files = await firebaseService.listFiles();
+  res.json({ success: true, data: { files } });
+});
+
+/**
+ * DESCARGAR
+ */
+router.post('/download', async (req, res) => {
+  const { fileId, downloadKey } = req.body;
+
+  const file = await firebaseService.getFileById(fileId);
+
+  if (!file || file.downloadKey !== downloadKey) {
+    return res.status(403).json({ error: { message: 'Acceso denegado' } });
   }
+
+  res.setHeader(
+    'Content-Disposition',
+    `attachment; filename="${file.originalName}"`
+  );
+  res.setHeader('Content-Type', file.mimeType);
+
+  const stream = firebaseService.getFileStream(file.path);
+  stream.pipe(res);
 });
 
 module.exports = router;

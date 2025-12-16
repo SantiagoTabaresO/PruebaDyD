@@ -2,7 +2,7 @@
   <div id="app">
     <header class="app-header">
       <div class="header-content">
-        <h1 class="title">SISTEMAS DE GESTIÓN DE ARCHIVOS</h1>
+        <h1 class="title">SISTEMA DE GESTIÓN DE ARCHIVOS</h1>
         <div class="project-name">PRUEBADYD - SISTEMA DE ARCHIVOS</div>
         
         <!-- Navegación -->
@@ -31,7 +31,6 @@
 </template>
 
 <script setup>
-// No necesita lógica adicional aquí
 </script>
 
 <style>
@@ -56,7 +55,7 @@ body {
 
 .app-header {
   background: rgba(13, 27, 42, 0.95);
-  padding: 1.5rem;
+  padding: 0.8rem 1.5rem;
   border-bottom: 3px solid #00b4d8;
   text-align: center;
   backdrop-filter: blur(10px);
@@ -71,9 +70,9 @@ body {
 }
 
 .title {
-  font-size: 3.5rem;
+  font-size: 2.6rem;
   font-weight: 900;
-  letter-spacing: 4px;
+  letter-spacing: 3px;
   color: #00b4d8;
   text-shadow: 0 0 15px rgba(0, 180, 216, 0.5);
   margin-bottom: 0.5rem;
@@ -91,19 +90,19 @@ body {
   display: inline-block;
   background: linear-gradient(45deg, #0077b6, #0096c7);
   color: white;
-  padding: 0.5rem 1.5rem;
+  padding: 0.3rem 1.2rem;
   border-radius: 20px;
   font-weight: bold;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   letter-spacing: 1px;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.8rem;
 }
 
 .app-nav {
   display: flex;
   justify-content: center;
   gap: 1rem;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
   flex-wrap: wrap;
 }
 

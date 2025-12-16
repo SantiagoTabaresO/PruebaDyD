@@ -181,33 +181,33 @@ const setRandom = () => {
 
 <style scoped>
 .features-container {
-  padding: 2rem;
+  padding: 1.5rem 2rem 2rem;;
   max-width: 1400px;
   margin: 0 auto;
-  min-height: 100vh;
+  min-height: 75vh;
   background: linear-gradient(135deg, #0a1929 0%, #0d1b2a 100%);
 }
 
 .header-section {
   text-align: center;
-  margin-bottom: 3rem;
-  padding: 2rem;
+  margin-bottom: 2rem;
+  padding: 1.2rem;
   background: rgba(0, 180, 216, 0.1);
-  border-radius: 20px;
+  border-radius: 16px;
   border: 1px solid rgba(0, 180, 216, 0.3);
 }
 
 .main-title {
-  font-size: 2.8rem;
+  font-size: 2.3rem;
   font-weight: 900;
   color: #00b4d8;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
   letter-spacing: 2px;
   text-transform: uppercase;
 }
 
 .subtitle {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   color: #90e0ef;
   font-weight: 300;
   letter-spacing: 1px;

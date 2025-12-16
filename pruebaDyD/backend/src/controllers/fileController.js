@@ -35,7 +35,7 @@ class FileController {
 
       console.log(`ZIP procesado: ${extractionResult.totalFiles} archivos extraídos`);
 
-      // 4. Subir cada archivo a Firebase y guardar metadatos
+      // 4. Subir archivos al Storage Emulator y guardar metadatos
       const uploadedFiles = [];
 
       for (const file of extractionResult.files) {
@@ -43,33 +43,28 @@ class FileController {
           const uploadResult = await firebaseService.uploadFile(
             file.buffer,
             file.name,
-            file.mimeType
-          );
-
-          const metadata = await firebaseService.saveFileMetadata(
-            {
-              name: file.name,
-              originalName: file.originalName,
-              path: uploadResult.path,
-              url: uploadResult.url,
-              size: file.size,
-              contentType: file.mimeType,
-              bucket: uploadResult.bucket
-            },
+            file.mimeType,
             extractionResult.parentZip
           );
+
+          const metadata = await firebaseService.saveFileMetadata({
+            name: file.name,
+            size: file.size,
+            contentType: file.mimeType,
+            storagePath: uploadResult.path,
+            bucket: uploadResult.bucket
+          }, extractionResult.parentZip);
 
           uploadedFiles.push({
             id: metadata.id,
             name: file.name,
-            size: file.size,
-            url: uploadResult.url
+            size: file.size
           });
-
-        } catch (error) {
-          console.error(`Error subiendo ${file.name}:`, error);
+        } catch (err) {
+          console.error(`Error subiendo ${file.name}`, err);
         }
       }
+
 
       await fs.unlink(req.file.path).catch(console.error);
 

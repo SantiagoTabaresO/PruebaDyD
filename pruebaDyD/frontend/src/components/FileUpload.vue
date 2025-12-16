@@ -135,7 +135,7 @@
           </div>
 
           <!--  Lista de archivos procesados -->
-          <div class="detail-row" v-if="backendResult?.data?.files?.length">
+          <div class="detail-row" v-if="backendResult && backendResult.success && backendResult.data?.files?.length">
             <span class="detail-label">Archivos procesados:</span>
             <div class="detail-value">
               <ul>
@@ -397,21 +397,39 @@ const getNotificationIcon = (type) => {
 
 const downloadFile = async (file) => {
   try {
-    // Usa la clave de descarga que ya tienes en Firestore
-    const res = await fileAPI.requestDownload(file.id, file.downloadKey);
+    const response = await fileAPI.requestDownload(
+      file.id,
+      file.downloadKey,
+      {
+        responseType: 'blob'
+      }
+    );
 
-    // Crear enlace temporal
-    const link = document.createElement('a');
-    link.href = res.data.downloadUrl;
-    link.download = file.originalName || file.name;
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Crear archivo descargable
+    const blob = new Blob([response.data], {
+      type: file.mimeType || 'application/octet-stream'
+    });
+
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file.originalName || file.name;
+    document.body.appendChild(a);
+    a.click();
+
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+
   } catch (err) {
-    showNotification(`❌ Error al descargar ${file.name}: ${err.message}`, 'error');
+    console.error(err);
+    showNotification(
+      ` Error al descargar ${file.originalName || file.name}`,
+      'error'
+    );
   }
 };
+
 
 
 // Manejo de errores
@@ -584,7 +602,7 @@ const uploadToBackend = async () => {
       fileCount: result.data.uploadedFiles,
       totalFiles: result.data.totalFiles,
       totalSize: result.data.totalSize,
-      files: result.data.files // 🔑 incluye downloadKey
+      files: result.data.files //  incluye downloadKey
     })
     
     // Actualizar estadísticas
@@ -619,7 +637,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* ===== ESTILOS PRINCIPALES ===== */
 .enhanced-file-upload {
   min-height: 100vh;
   background: linear-gradient(135deg, #0a1929 0%, #0d1b2a 100%);
