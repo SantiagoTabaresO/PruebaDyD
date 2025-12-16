@@ -397,38 +397,33 @@ const getNotificationIcon = (type) => {
 
 const downloadFile = async (file) => {
   try {
-    const response = await fileAPI.requestDownload(
-      file.id,
-      file.downloadKey,
-      {
-        responseType: 'blob'
-      }
-    );
+    // 1️ Pedir clave al usuario
+    const key = prompt(`🔐 Ingresa la clave para descargar "${file.originalName || file.name}"`);
 
-    // Crear archivo descargable
-    const blob = new Blob([response.data], {
-      type: file.mimeType || 'application/octet-stream'
-    });
+    if (!key) {
+      showNotification('Descarga cancelada: clave requerida', 'warning');
+      return;
+    }
 
-    const url = window.URL.createObjectURL(blob);
+    // 2️ Llamar al backend
+    const res = await fileAPI.requestDownload(file.id, key);
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = file.originalName || file.name;
-    document.body.appendChild(a);
-    a.click();
-
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+    // 3️ Descargar archivo
+    const link = document.createElement('a');
+    link.href = res.downloadUrl;
+    link.download = file.originalName || file.name;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
   } catch (err) {
-    console.error(err);
     showNotification(
-      ` Error al descargar ${file.originalName || file.name}`,
+      ` Error al descargar ${file.name}: ${err.message}`,
       'error'
     );
   }
 };
+
 
 
 

@@ -67,7 +67,7 @@ export const fileAPI = {
       `${API_BASE_URL}/files/download`,
       { fileId, downloadKey },
       {
-        responseType: 'blob' // 🔑 CLAVE ABSOLUTA
+        responseType: 'blob'
       }
     );
   },

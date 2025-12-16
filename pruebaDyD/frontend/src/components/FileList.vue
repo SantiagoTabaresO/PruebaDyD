@@ -1,29 +1,5 @@
 <template>
   <div class="file-list">
-    <div class="list-header">
-      <div class="header-left">
-        <h3>📁 ARCHIVOS PROCESADOS POR EL BACKEND</h3>
-        <p class="list-subtitle">Los archivos se descomprimen en el servidor</p>
-      </div>
-      
-      <div class="header-actions">
-        <div class="search-box">
-          <input 
-            type="text" 
-            v-model="searchQuery"
-            placeholder="Buscar archivos..."
-            class="search-input"
-            @input="debouncedSearch"
-          />
-          <span class="search-icon">🔍</span>
-        </div>
-        
-        <button class="refresh-btn" @click="loadFilesFromBackend" :disabled="loading">
-          <span class="refresh-icon" :class="{ spinning: loading }">🔄</span>
-          {{ loading ? 'Cargando...' : 'Actualizar' }}
-        </button>
-      </div>
-    </div>
     
     <!-- Estadísticas del backend -->
     <div v-if="backendStats" class="backend-stats">

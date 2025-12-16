@@ -68,22 +68,55 @@ router.get('/list', async (req, res) => {
  * DESCARGAR
  */
 router.post('/download', async (req, res) => {
-  const { fileId, downloadKey } = req.body;
+  try {
+    const { fileId, downloadKey } = req.body;
 
-  const file = await firebaseService.getFileById(fileId);
+    if (!fileId || !downloadKey) {
+      return res.status(400).json({
+        error: { message: 'fileId y downloadKey son requeridos' }
+      });
+    }
 
-  if (!file || file.downloadKey !== downloadKey) {
-    return res.status(403).json({ error: { message: 'Acceso denegado' } });
+    // 1️ Obtener metadata desde Firestore
+    const file = await firebaseService.getFileById(fileId);
+
+    if (!file) {
+      return res.status(404).json({
+        error: { message: 'Archivo no encontrado' }
+      });
+    }
+
+    // 2️ Validar clave FIJA
+    if (downloadKey !== '1001575763') {
+      return res.status(403).json({
+        error: { message: 'Clave de descarga incorrecta' }
+      });
+    }
+
+    // 3️ Obtener stream desde Storage Emulator
+    const stream = firebaseService.getFileStream(file.path);
+
+    // 4️ Headers correctos
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${file.originalName}"`
+    );
+    res.setHeader(
+      'Content-Type',
+      file.mimeType || 'application/octet-stream'
+    );
+
+    // 5️ Enviar archivo
+    stream.pipe(res);
+
+  } catch (error) {
+    console.error('Error en descarga:', error);
+    res.status(500).json({
+      error: { message: error.message }
+    });
   }
-
-  res.setHeader(
-    'Content-Disposition',
-    `attachment; filename="${file.originalName}"`
-  );
-  res.setHeader('Content-Type', file.mimeType);
-
-  const stream = firebaseService.getFileStream(file.path);
-  stream.pipe(res);
 });
+
+
 
 module.exports = router;

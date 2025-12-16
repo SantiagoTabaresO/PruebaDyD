@@ -1,6 +1,8 @@
 const admin = require('firebase-admin');
-const crypto = require('crypto');
+// const crypto = require('crypto');
 const bucket = admin.storage().bucket();
+const DOWNLOAD_KEY = '1001575763';
+
 
 class FirebaseService {
   constructor() {
@@ -32,12 +34,12 @@ class FirebaseService {
   /*Guardar metadatos en Firestore*/
   async saveFileMetadata(fileData, parentZip) {
     try {
-      const downloadKey = crypto.randomBytes(16).toString('hex');
+      // const downloadKey = crypto.randomBytes(16).toString('hex');
 
       const fileDoc = {
         ...fileData,
         parentZip,
-        downloadKey,
+        downloadKey: DOWNLOAD_KEY,
         uploadedAt: admin.firestore.FieldValue.serverTimestamp(),
         downloadCount: 0
       };
