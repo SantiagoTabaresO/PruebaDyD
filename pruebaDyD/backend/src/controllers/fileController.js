@@ -224,7 +224,7 @@ class FileController {
         stats.byType[ext] = (stats.byType[ext] || 0) + 1;
       });
 
-      // 🔥 FIX: reemplazo de this.formatBytes que causaba 500
+      //  FIX: reemplazo de this.formatBytes que causaba 500
       const formatBytes = (bytes) => {
         if (bytes === 0) return '0 Bytes';
         const k = 1024;

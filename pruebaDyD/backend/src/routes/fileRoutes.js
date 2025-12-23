@@ -87,7 +87,7 @@ router.post('/download', async (req, res) => {
     }
 
     // 2️ Validar clave FIJA
-    if (downloadKey !== '1001575763') {
+    if (downloadKey !== '1') {
       return res.status(403).json({
         error: { message: 'Clave de descarga incorrecta' }
       });

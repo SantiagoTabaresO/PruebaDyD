@@ -53,6 +53,7 @@ class UnzipService {
 
   getMimeType(fileName) {
     const ext = path.extname(fileName).toLowerCase();
+    console.log(`MIME type for ${fileName}: ${ext}`);
     return {
       '.pdf': 'application/pdf',
       '.json': 'application/json',

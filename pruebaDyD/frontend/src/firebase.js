@@ -20,14 +20,14 @@ const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
 const storage = getStorage(app)
 
-// 🔥 CONECTAR A EMULATORS SOLO EN DESARROLLO
+//  CONECTAR A EMULATORS SOLO EN DESARROLLO
 if (import.meta.env.DEV) {
-  console.log("🔥 Firebase Emulator MODE")
+  console.log(" Firebase Emulator MODE")
 
   connectFirestoreEmulator(db, "localhost", 8080)
   connectStorageEmulator(storage, "localhost", 9199)
 } else {
-  console.log("🚀 Firebase Production MODE")
+  console.log(" Firebase Production MODE")
 }
 
 // Exportar servicios
